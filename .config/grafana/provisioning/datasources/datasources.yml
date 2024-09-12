@@ -1,0 +1,54 @@
+#https://grafana.com/docs/grafana/latest/administration/provisioning/
+apiVersion: 1
+
+datasources:
+- name: Prometheus
+  type: prometheus
+  uid: prometheus
+  access: proxy
+  url: http://prometheus:9090
+  jsonData:
+    timeInterval: 10s
+  basicAuth: false
+  isDefault: true
+  version: 1
+  editable: false
+
+# - name: Tempo
+#   type: tempo
+#   uid: tempo
+#   access: proxy
+#   url: http://tempo:3200
+#   basicAuth: false
+#   isDefault: false
+#   version: 1
+#   editable: false
+
+- name: Zabbix
+  type: alexanderzobnin-zabbix-datasource
+  uid: zabbix
+  access: proxy
+  url: http://zabbix-web:8080/api_jsonrpc.php
+  isDefault: false
+  jsonData:
+    # Zabbix API credentials
+    username: admin
+    password: zabbix
+    # Trends options
+    trends: true
+    trendsFrom: '7d'
+    trendsRange: '4d'
+    # Cache update interval
+    cacheTTL: '1h'
+    # Alerting options
+    alerting: true
+    addThresholds: false
+    alertingMinSeverity: 3
+    # Disable acknowledges for read-only users
+    disableReadOnlyUsersAck: true
+    # Disable time series data alignment
+    disableDataAlignment: false
+    # Use value mapping from Zabbix
+    useZabbixValueMapping: true
+  version: 1
+  editable: false

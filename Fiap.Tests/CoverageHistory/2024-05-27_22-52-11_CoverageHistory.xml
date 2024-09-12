@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<coverage version="1.0" date="2024-05-27_22-52-11" tag="">
+  <assembly name="Fiap.Api">
+    <class name="Fiap.Api.Configuration.ServiceConfiguration" coveredlines="5" coverablelines="5" totallines="18" coveredbranches="0" totalbranches="0" coveredcodeelements="1" totalcodeelements="1" />
+    <class name="Fiap.Api.Controllers.ContatoController" coveredlines="49" coverablelines="49" totallines="113" coveredbranches="8" totalbranches="8" coveredcodeelements="5" totalcodeelements="5" />
+    <class name="Fiap.Api.Entities.Contato" coveredlines="5" coverablelines="5" totallines="24" coveredbranches="0" totalbranches="0" coveredcodeelements="5" totalcodeelements="5" />
+    <class name="Fiap.Api.Migrations.FiapDataContextModelSnapshot" coveredlines="0" coverablelines="30" totallines="51" coveredbranches="0" totalbranches="0" coveredcodeelements="0" totalcodeelements="1" />
+    <class name="Fiap.Api.Migrations.NomeDaMigracao" coveredlines="0" coverablelines="51" totallines="92" coveredbranches="0" totalbranches="0" coveredcodeelements="0" totalcodeelements="3" />
+    <class name="Fiap.Api.Migrations.NomeDaMigracao1" coveredlines="0" coverablelines="34" totallines="76" coveredbranches="0" totalbranches="0" coveredcodeelements="0" totalcodeelements="3" />
+    <class name="Fiap.Api.Models.AtualizarContatoSchema" coveredlines="5" coverablelines="5" totallines="14" coveredbranches="0" totalbranches="0" coveredcodeelements="5" totalcodeelements="5" />
+    <class name="Fiap.Api.Models.ConsultarContatoSchema" coveredlines="1" coverablelines="1" totallines="10" coveredbranches="0" totalbranches="0" coveredcodeelements="1" totalcodeelements="1" />
+    <class name="Fiap.Api.Models.CriarContatoSchema" coveredlines="4" coverablelines="4" totallines="13" coveredbranches="0" totalbranches="0" coveredcodeelements="4" totalcodeelements="4" />
+    <class name="Fiap.Domain.Repositories.ContatoRepository" coveredlines="75" coverablelines="81" totallines="156" coveredbranches="27" totalbranches="30" coveredcodeelements="9" totalcodeelements="9" />
+    <class name="Fiap.Infra.Context.FiapDataContext" coveredlines="4" coverablelines="4" totallines="15" coveredbranches="0" totalbranches="0" coveredcodeelements="2" totalcodeelements="2" />
+    <class name="Program" coveredlines="0" coverablelines="15" totallines="35" coveredbranches="0" totalbranches="2" coveredcodeelements="0" totalcodeelements="1" />
+  </assembly>
+</coverage>
