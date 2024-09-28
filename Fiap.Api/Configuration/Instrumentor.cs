@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.Metrics;
 using System.Diagnostics;
 
-namespace Fiap.Api.Configuration
+namespace Fiap.Api.CriarContato.Configuration
 {
     public sealed class Instrumentor : IDisposable
     {

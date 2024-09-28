@@ -1,12 +1,8 @@
-﻿using Fiap.Api.Interfaces;
-using Fiap.Domain.Repositories;
-using Fiap.Infra.Context;
-using Microsoft.EntityFrameworkCore;
-using OpenTelemetry.Metrics;
+﻿using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace Fiap.Api.Configuration
+namespace Fiap.Api.CriarContato.Configuration
 {
     public static class ServiceConfiguration
     {
@@ -14,9 +10,6 @@ namespace Fiap.Api.Configuration
         {
             builder.Services.AddHealthChecks();
             builder.Services.AddSingleton<Instrumentor>();
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            builder.Services.AddDbContext<FiapDataContext>(options => options.UseNpgsql(connectionString));
-            builder.Services.AddScoped<IContatoRepository, ContatoRepository>();
 
             Action<ResourceBuilder> appResourceBuilder =
                 resource => resource
