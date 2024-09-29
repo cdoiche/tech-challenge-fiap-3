@@ -2,6 +2,7 @@
 using Fiap.Api.CriarContato.DTO;
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Client;
+using System.IO;
 using System.Text;
 using System.Text.Json;
 
@@ -22,25 +23,23 @@ namespace Fiap.Api.CriarContato.Controllers
         {
             try
             {
-                //try
-                //{
-                //    if (_contatoRepository.ContatoValido(contato))
-                //    {
-                //        await _contatoRepository.InserirContato(contato);
-                //        return Ok(contato);
-                //    }
-                //    else
-                //    {
-                //        string validacao = String.Join(System.Environment.NewLine, _contatoRepository.ValidarContato(contato));
-                //        return BadRequest(validacao);
-                //    }
+                // Verificar se os campos obrigatórios estão preenchidos
+                if (string.IsNullOrEmpty(novoContatoDTO.Nome) ||
+                    string.IsNullOrEmpty(novoContatoDTO.Ddd) ||
+                    string.IsNullOrEmpty(novoContatoDTO.Telefone) ||
+                    string.IsNullOrEmpty(novoContatoDTO.Email))
+                {
+                    return BadRequest("Todos os campos são de preenchimento obrigatório.");
+                }
 
-                //    return BadRequest("Não foi possível criar o contato.");
-                //}
-                //catch (Exception ex)
-                //{
-                //    return StatusCode(500, "Falha interna no servidor. " + ex.Message);
-                //}
+                HttpClient client = new HttpClient();
+                Task<HttpResponseMessage> response = client.GetAsync("http://localhost:5189/ValidarContato?ddd=" + novoContatoDTO.Ddd+"&telefone="+novoContatoDTO.Telefone+"&emil="+novoContatoDTO.Email);
+                response.Wait();
+
+                if (!response.Result.IsSuccessStatusCode)
+                {
+                    return BadRequest("O e-mail ou telefone informado já existe.");
+                }
 
                 var factory = new ConnectionFactory()
                 {
@@ -79,76 +78,5 @@ namespace Fiap.Api.CriarContato.Controllers
                 return StatusCode(500, "Falha interna no servidor. " + ex.Message);
             }
         }
-
-        //[HttpPut("AtualizarContato")]
-        //public async Task<IActionResult> AtualizarContato([FromBody] AtualizarContatoDTO atualizarContatoDTO)
-        //{
-        //    try
-        //    {
-        //        if (atualizarContatoDTO != null)
-        //        {
-        //            Contato contato = await _contatoRepository.AtualizarContato(atualizarContatoDTO);
-
-        //            if (contato != null)
-        //            {
-        //                return Ok(contato);
-        //            }
-        //        }
-
-        //        return BadRequest("Não foi possível atualizar o contato.");
-        //    }
-        //    catch (InvalidOperationException ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Falha interna no servidor. " + ex.Message);
-        //    }
-        //}
-
-        //[HttpDelete("ExcluirContato")]
-        //public async Task<IActionResult> ExcluirContato([FromQuery] int id)
-        //{
-        //    try
-        //    {
-        //        if (id > 0)
-        //        {
-        //            bool excluido = await _contatoRepository.ExcluirContato(id);
-
-        //            if (excluido)
-        //            {
-        //                return Ok();
-        //            }
-        //        }
-
-        //        return BadRequest("Contato não localizado.");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Falha interna no servidor." + ex.Message);
-        //    }
-        //}
-
-        //[HttpGet("ConsultarContato")]
-        //public IActionResult ConsultarContato(string ddd)
-        //{
-        //    _instrumentor.IncomingRequestCounter.Add(1,
-        //   new KeyValuePair<string, object>("operation", "ConsultarContato"),
-        //   new KeyValuePair<string, object>("controller", nameof(CriarContatoController)));
-
-        //    try
-        //    {
-        //        Console.WriteLine("Trying to ConsultarContadosPorDDD");
-        //        IEnumerable<Contato> list = _contatoRepository.ConsultarContatosPorDDD(ddd);
-
-        //        return Ok(list);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Falha interna no servidor. " + ex.Message);
-        //    }
-        //}
-
     }
 }

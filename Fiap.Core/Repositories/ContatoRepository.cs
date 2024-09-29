@@ -20,27 +20,6 @@ namespace Fiap.Domain.Repositories
 
         public async Task<bool> InserirContato(Contato contato)
         {
-            // Verificar se os campos obrigatórios estão preenchidos
-            if (string.IsNullOrEmpty(contato.Nome) ||
-                string.IsNullOrEmpty(contato.Ddd) ||
-                string.IsNullOrEmpty(contato.Telefone) ||
-                string.IsNullOrEmpty(contato.Email))
-            {
-                return false;
-            }
-
-            // Verificar se o e-mail já está em uso por outro contato
-            if (await ContatoExistePorEmail(contato.Email, 0))
-            {
-                throw new InvalidOperationException("O e-mail já está sendo usado por outro contato.");
-            }
-
-            // Verificar se o telefone já está em uso por outro contato
-            if (await ContatoExistePorTelefone(contato.Ddd, contato.Telefone))
-            {
-                throw new InvalidOperationException("O telefone já está sendo usado por outro contato.");
-            }
-
             // Adicionar o contato ao contexto e salvar as mudanças
             await _context.Contatos.AddAsync(contato);
             await _context.SaveChangesAsync();
@@ -127,18 +106,6 @@ namespace Fiap.Domain.Repositories
             }
         }
 
-        public async Task<bool> ContatoExistePorEmail(string email, int id)
-        {
-            // Verificar se existe algum contato com o mesmo e-mail no banco de dados
-            return await _context.Contatos.AnyAsync(c => c.Email == email && c.Id != id);
-        }
-
-        public async Task<bool> ContatoExistePorTelefone(string ddd, string telefone)
-        {
-            // Verificar se existe algum contato com o mesmo telefone no banco de dados
-            return await _context.Contatos.AnyAsync(c => c.Ddd == ddd && c.Telefone == telefone);
-        }
-
         public Contato CriarContato(string nome, string ddd, string telefone, string email)
         {
             // Criar um novo contato se ele não existir
@@ -164,6 +131,18 @@ namespace Fiap.Domain.Repositories
             return _context.Contatos.Any(c => c.Nome == nome && c.Ddd == ddd && c.Telefone == telefone && c.Email == email);
         }
 
+        public async Task<bool> ContatoExistePorEmail(string email, int id)
+        {
+            // Verificar se existe algum contato com o mesmo e-mail no banco de dados
+            return await _context.Contatos.AnyAsync(c => c.Email == email && c.Id != id);
+        }
+
+        public async Task<bool> ContatoExistePorTelefone(string ddd, string telefone)
+        {
+            // Verificar se existe algum contato com o mesmo telefone no banco de dados
+            return await _context.Contatos.AnyAsync(c => c.Ddd == ddd && c.Telefone == telefone);
+        }
+
         public bool ContatoValido(Contato contato)
         {
             List<ValidationResult> listResultado = ValidarContato(contato);
@@ -178,11 +157,6 @@ namespace Fiap.Domain.Repositories
             Validator.TryValidateObject(contato, contexto, listResultado, true);
 
             return listResultado;
-        }
-
-        public async Task AtualizarContato(Contato contato)
-        {
-            throw new NotImplementedException();
         }
     }
 }
