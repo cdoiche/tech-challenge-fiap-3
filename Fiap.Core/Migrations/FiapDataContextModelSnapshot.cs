@@ -16,12 +16,12 @@ namespace Fiap.Core.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.5")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Fiap.Api.Entities.Contato", b =>
+            modelBuilder.Entity("Fiap.Core.Entities.Contato", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,9 +30,11 @@ namespace Fiap.Core.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Ddd")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Nome")
@@ -40,6 +42,7 @@ namespace Fiap.Core.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Telefone")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");

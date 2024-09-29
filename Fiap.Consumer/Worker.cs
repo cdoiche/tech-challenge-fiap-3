@@ -41,8 +41,8 @@ namespace Fiap.Consumer
             while (!stoppingToken.IsCancellationRequested)
             {
                 VerificarCriarContato(connection);
-                VerificarCriarContato(connection);
-                VerificarCriarContato(connection);
+                VerificarAlterarContato(connection);
+                VerificarExcluirContato(connection);
 
                 await Task.Delay(1000, stoppingToken);
             }
@@ -73,6 +73,58 @@ namespace Fiap.Consumer
             }
         }
 
+        private void VerificarAlterarContato(IConnection connection)
+        {
+            using (var channel = connection.CreateModel())
+            {
+                channel.QueueDeclare(
+                    queue: "alterar_contato_queue", // Corrigido para o nome da fila que você quer consumir
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+
+                var consumer = new EventingBasicConsumer(channel);
+
+                consumer.Received += (sender, eventArgs) =>
+                {
+                    var body = eventArgs.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
+                    var atualizarContatoDTO = JsonSerializer.Deserialize<AtualizarContatoDTO>(message);
+
+                    AtualizarContato(atualizarContatoDTO);
+                };
+
+                channel.BasicConsume(queue: "alterar_contato_queue", autoAck: true, consumer: consumer);
+            }
+        }
+
+        private void VerificarExcluirContato(IConnection connection)
+        {
+            using (var channel = connection.CreateModel())
+            {
+                channel.QueueDeclare(
+                    queue: "alterar_contato_queue",
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+
+                var consumer = new EventingBasicConsumer(channel);
+
+                consumer.Received += (sender, eventArgs) =>
+                {
+                    var body = eventArgs.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
+                    var atualizarContatoDTO = JsonSerializer.Deserialize<ExcluirContatoDTO>(message);
+
+                    ExcluirContato(atualizarContatoDTO);
+                };
+
+                channel.BasicConsume(queue: "alterar_contato_queue", autoAck: true, consumer: consumer);
+            }
+        }
+
         private async Task InserirContato(CriarContatoDTO criarContatoDTO) 
         {
             try
@@ -81,6 +133,36 @@ namespace Fiap.Consumer
 
                 Contato contato = contatoRepository.CriarContato(criarContatoDTO.Nome, criarContatoDTO.Ddd, criarContatoDTO.Telefone, criarContatoDTO.Email);
                 await contatoRepository.InserirContato(contato);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        private async Task AtualizarContato(AtualizarContatoDTO ContatoDTO)
+        {
+            try
+            {
+                ContatoRepository contatoRepository = new ContatoRepository(context);
+
+                Contato contato = await contatoRepository.AtualizarContato(ContatoDTO);
+                await contatoRepository.AtualizarContato(contato);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        private async Task ExcluirContato(ExcluirContatoDTO ContatoDTO)
+        {
+            try
+            {
+                ContatoRepository contatoRepository = new ContatoRepository(context);
+                int id = ContatoDTO.Id;
+                bool contato = await contatoRepository.ExcluirContato(id);
+                await contatoRepository.ExcluirContato(id);
             }
             catch (Exception ex)
             {

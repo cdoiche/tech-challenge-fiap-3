@@ -179,5 +179,10 @@ namespace Fiap.Domain.Repositories
 
             return listResultado;
         }
+
+        public async Task AtualizarContato(Contato contato)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

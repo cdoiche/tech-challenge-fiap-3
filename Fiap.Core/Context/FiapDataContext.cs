@@ -7,7 +7,7 @@ namespace Fiap.Core.Context
     {
         public FiapDataContext(DbContextOptions<FiapDataContext> options) : base(options)
         {
-
+            
         }
 
         public DbSet<Contato> Contatos { get; set; }
