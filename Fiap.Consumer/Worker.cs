@@ -147,7 +147,7 @@ namespace Fiap.Consumer
                 ContatoRepository contatoRepository = new ContatoRepository(context);
 
                 Contato contato = await contatoRepository.AtualizarContato(ContatoDTO);
-                await contatoRepository.AtualizarContato(contato);
+                await contatoRepository.AtualizarContato(ContatoDTO);
             }
             catch (Exception ex)
             {
