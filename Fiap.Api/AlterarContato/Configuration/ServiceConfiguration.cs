@@ -3,7 +3,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
 
-namespace Fiap.Api.CriarContato.Configuration
+namespace Fiap.Api.AlterarContato.Configuration
 {
     public static class ServiceConfiguration
     {

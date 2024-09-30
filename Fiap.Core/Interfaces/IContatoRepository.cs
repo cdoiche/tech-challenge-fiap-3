@@ -7,7 +7,7 @@ namespace Fiap.Core.Interfaces
     public interface IContatoRepository
     {
         Task<bool> InserirContato(Contato contato);
-        Task<Contato> AtualizarContato(AtualizarContatoDTO contato);
+        Task<Contato> AtualizarContato(AlterarContatoDTO contato);
         Task<bool> ExcluirContato(int id);
         IEnumerable<Contato> ConsultarContatosPorDDD(string ddd);
         Task<bool> ContatoExistePorEmail(string email, int id);

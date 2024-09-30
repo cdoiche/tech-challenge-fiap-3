@@ -33,7 +33,7 @@ namespace Fiap.Api.CriarContato.Controllers
                 }
 
                 HttpClient client = new HttpClient();
-                Task<HttpResponseMessage> response = client.GetAsync("http://localhost:5189/ValidarContato?ddd=" + novoContatoDTO.Ddd+"&telefone="+novoContatoDTO.Telefone+"&emil="+novoContatoDTO.Email);
+                Task<HttpResponseMessage> response = client.GetAsync("http://localhost:5189/ValidarContato?ddd=" + novoContatoDTO.Ddd+"&telefone="+novoContatoDTO.Telefone+"&email="+novoContatoDTO.Email);
                 response.Wait();
 
                 if (!response.Result.IsSuccessStatusCode)

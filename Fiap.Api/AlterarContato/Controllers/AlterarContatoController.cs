@@ -1,11 +1,11 @@
-﻿using Fiap.Api.CriarContato.Configuration;
-using Fiap.Api.CriarContato.DTO;
+﻿using Fiap.Api.AlterarContato.Configuration;
+using Fiap.Api.AlterarContato.DTO;
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
-namespace Fiap.Api.CriarContato.Controllers
+namespace Fiap.Api.AlterarContato.Controllers
 {
     [ApiController]
     public class AlterarContatoController : ControllerBase
@@ -17,138 +17,51 @@ namespace Fiap.Api.CriarContato.Controllers
             _instrumentor = instrumentor;
         }
 
-        [HttpPut("AtualizarContato")]
-        public IActionResult AtualizarContato([FromBody] AlterarContatoDTO ContatoDTO)
+        [HttpPut("AlterarContato")]
+        public IActionResult AlterarContato([FromBody] AlterarContatoDTO alterarContatoDTO)
         {
-            try
+            // Verificar se os campos obrigatórios estão preenchidos
+            if (string.IsNullOrEmpty(alterarContatoDTO.Id) || string.IsNullOrEmpty(alterarContatoDTO.Email))
             {
-                //try
-                //{
-                //    if (_contatoRepository.ContatoValido(contato))
-                //    {
-                //        await _contatoRepository.InserirContato(contato);
-                //        return Ok(contato);
-                //    }
-                //    else
-                //    {
-                //        string validacao = String.Join(System.Environment.NewLine, _contatoRepository.ValidarContato(contato));
-                //        return BadRequest(validacao);
-                //    }
+                return BadRequest("Os campos Id e E-mail são de preenchimento obrigatório.");
+            }
 
-                //    return BadRequest("Não foi possível criar o contato.");
-                //}
-                //catch (Exception ex)
-                //{
-                //    return StatusCode(500, "Falha interna no servidor. " + ex.Message);
-                //}
+            HttpClient client = new HttpClient();
+            Task<HttpResponseMessage> response = client.GetAsync("http://localhost:5189/ValidarContato?id="+alterarContatoDTO.Id+"&ddd=" + alterarContatoDTO.Ddd + "&telefone=" + alterarContatoDTO.Telefone + "&email=" + alterarContatoDTO.Email);
+            response.Wait();
 
-                var factory = new ConnectionFactory()
+            if (!response.Result.IsSuccessStatusCode)
+            {
+                return BadRequest("O e-mail ou telefone informado já está sendo usado por outro contato.");
+            }
+
+            var factory = new ConnectionFactory()
+            {
+                HostName = "localhost",
+                UserName = "guest",
+                Password = "guest"
+            };
+
+            using (var connection = factory.CreateConnection())
+            {
+                using (var channel = connection.CreateModel())
                 {
-                    HostName = "localhost",
-                    UserName = "guest",
-                    Password = "guest"
-                };
+                    channel.QueueDeclare(
+                        queue: "alterar_contato_queue",
+                        durable: false,
+                        exclusive: false,
+                        autoDelete: false,
+                        arguments: null);
 
-                using (var connection = factory.CreateConnection())
-                {
-                    using (var channel = connection.CreateModel())
-                    {
-                        channel.QueueDeclare(
-                            queue: "criar_contato_queue",
-                            durable: false,
-                            exclusive: false,
-                            autoDelete: false,
-                            arguments: null);
+                    var message = JsonSerializer.Serialize(alterarContatoDTO);
 
-                        var message = JsonSerializer.Serialize(ContatoDTO);
+                    var body = Encoding.UTF8.GetBytes(message);
 
-                        var body = Encoding.UTF8.GetBytes(message);
-
-                        channel.BasicPublish(exchange: "", routingKey: "atualizar_contato_queue", basicProperties: null, body: body);
-                    }
+                    channel.BasicPublish(exchange: "", routingKey: "alterar_contato_queue", basicProperties: null, body: body);
                 }
+            }
 
-                return Ok();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Falha interna no servidor. " + ex.Message);
-            }
+            return Ok();
         }
-
-        //[HttpPut("AtualizarContato")]
-        //public async task<iactionresult> atualizarcontato([frombody] atualizarcontatodto atualizarcontatodto)
-        //{
-        //    try
-        //    {
-        //        if (atualizarcontatodto != null)
-        //        {
-        //            contato contato = await _contatorepository.atualizarcontato(atualizarcontatodto);
-
-        //            if (contato != null)
-        //            {
-        //                return ok(contato);
-        //            }
-        //        }
-
-        //        return badrequest("não foi possível atualizar o contato.");
-        //    }
-        //    catch (invalidoperationexception ex)
-        //    {
-        //        return badrequest(ex.message);
-        //    }
-        //    catch (exception ex)
-        //    {
-        //        return statuscode(500, "falha interna no servidor. " + ex.message);
-        //    }
-        //}
-
-        //[HttpDelete("ExcluirContato")]
-        //public async Task<IActionResult> ExcluirContato([FromQuery] int id)
-        //{
-        //    try
-        //    {
-        //        if (id > 0)
-        //        {
-        //            bool excluido = await _contatoRepository.ExcluirContato(id);
-
-        //            if (excluido)
-        //            {
-        //                return Ok();
-        //            }
-        //        }
-
-        //        return BadRequest("Contato não localizado.");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Falha interna no servidor." + ex.Message);
-        //    }
-        //}
-
-        //[HttpGet("ConsultarContato")]
-        //public IActionResult ConsultarContato(string ddd)
-        //{
-        //    _instrumentor.IncomingRequestCounter.Add(1,
-        //   new KeyValuePair<string, object>("operation", "ConsultarContato"),
-        //   new KeyValuePair<string, object>("controller", nameof(CriarContatoController)));
-
-        //    try
-        //    {
-        //        Console.WriteLine("Trying to ConsultarContadosPorDDD");
-        //        IEnumerable<Contato> list = _contatoRepository.ConsultarContatosPorDDD(ddd);
-
-        //        return Ok(list);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Falha interna no servidor. " + ex.Message);
-        //    }
-        //}
-
     }
 }

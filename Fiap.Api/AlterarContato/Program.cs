@@ -1,4 +1,4 @@
-using Fiap.Api.CriarContato.Configuration;
+using Fiap.Api.AlterarContato.Configuration;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Prometheus;

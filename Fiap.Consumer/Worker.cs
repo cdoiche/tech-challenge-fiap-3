@@ -26,20 +26,20 @@ namespace Fiap.Consumer
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var scope = _serviceProvider.CreateScope();
-            context = scope.ServiceProvider.GetRequiredService<FiapDataContext>();
-
-            var factory = new ConnectionFactory()
-            {
-                HostName = "localhost",
-                UserName = "guest",
-                Password = "guest"
-            };
-
-            var connection = factory.CreateConnection();
-
             while (!stoppingToken.IsCancellationRequested)
             {
+                var scope = _serviceProvider.CreateScope();
+                context = scope.ServiceProvider.GetRequiredService<FiapDataContext>();
+
+                var factory = new ConnectionFactory()
+                {
+                    HostName = "localhost",
+                    UserName = "guest",
+                    Password = "guest"
+                };
+
+                var connection = factory.CreateConnection();
+
                 VerificarCriarContato(connection);
                 VerificarAlterarContato(connection);
                 VerificarExcluirContato(connection);
@@ -66,7 +66,8 @@ namespace Fiap.Consumer
                     var message = Encoding.UTF8.GetString(body);
                     var criarContatoDTO = JsonSerializer.Deserialize<CriarContatoDTO>(message);
 
-                    InserirContato(criarContatoDTO);
+                    Task t = InserirContato(criarContatoDTO);
+                    t.Wait();
                 };
 
                 channel.BasicConsume(queue: "criar_contato_queue", autoAck: true, consumer: consumer);
@@ -90,9 +91,10 @@ namespace Fiap.Consumer
                 {
                     var body = eventArgs.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
-                    var atualizarContatoDTO = JsonSerializer.Deserialize<AtualizarContatoDTO>(message);
+                    var alterarContatoDTO = JsonSerializer.Deserialize<AlterarContatoDTO>(message);
 
-                    AtualizarContato(atualizarContatoDTO);
+                    Task t = AlterarContato(alterarContatoDTO);
+                    t.Wait();
                 };
 
                 channel.BasicConsume(queue: "alterar_contato_queue", autoAck: true, consumer: consumer);
@@ -104,7 +106,7 @@ namespace Fiap.Consumer
             using (var channel = connection.CreateModel())
             {
                 channel.QueueDeclare(
-                    queue: "alterar_contato_queue",
+                    queue: "excluir_contato_queue",
                     durable: false,
                     exclusive: false,
                     autoDelete: false,
@@ -118,10 +120,11 @@ namespace Fiap.Consumer
                     var message = Encoding.UTF8.GetString(body);
                     var atualizarContatoDTO = JsonSerializer.Deserialize<ExcluirContatoDTO>(message);
 
-                    ExcluirContato(atualizarContatoDTO);
+                    Task t = ExcluirContato(atualizarContatoDTO);
+                    t.Wait();
                 };
 
-                channel.BasicConsume(queue: "alterar_contato_queue", autoAck: true, consumer: consumer);
+                channel.BasicConsume(queue: "excluir_contato_queue", autoAck: true, consumer: consumer);
             }
         }
 
@@ -140,13 +143,12 @@ namespace Fiap.Consumer
             }
         }
 
-        private async Task AtualizarContato(AtualizarContatoDTO ContatoDTO)
+        private async Task AlterarContato(AlterarContatoDTO ContatoDTO)
         {
             try
             {
                 ContatoRepository contatoRepository = new ContatoRepository(context);
 
-                Contato contato = await contatoRepository.AtualizarContato(ContatoDTO);
                 await contatoRepository.AtualizarContato(ContatoDTO);
             }
             catch (Exception ex)

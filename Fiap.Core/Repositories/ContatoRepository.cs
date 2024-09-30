@@ -27,7 +27,7 @@ namespace Fiap.Domain.Repositories
             return true;
         }
 
-        public async Task<Contato> AtualizarContato(AtualizarContatoDTO contato)
+        public async Task<Contato> AtualizarContato(AlterarContatoDTO contato)
         {
             // Obter o contato existente pelo ID
             var contatoExistente = await _context.Contatos.FindAsync(contato.Id);
@@ -44,29 +44,10 @@ namespace Fiap.Domain.Repositories
                 if (!string.IsNullOrEmpty(contato.Telefone))
                     contatoExistente.Telefone = contato.Telefone;
 
-                if (!string.IsNullOrEmpty(contato.Email))
-                {
-                    // Verificar se o novo e-mail já está em uso por outro contato
-                    if (await ContatoExistePorEmail(contato.Email, contato.Id))
-                    {
-                        throw new InvalidOperationException("O e-mail já está sendo usado por outro contato.");
-                    }
+                // Salvar as mudanças no banco de dados
+                await _context.SaveChangesAsync();
 
-                    contatoExistente.Email = contato.Email;
-                }
-
-                if (ContatoValido(contatoExistente))
-                {
-                    // Salvar as mudanças no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    return contatoExistente;
-                }
-                else
-                {
-                    string validacao = String.Join(System.Environment.NewLine, ValidarContato(contatoExistente));
-                    throw new InvalidOperationException(validacao);
-                }
+                return contatoExistente;
             }
             else
             {

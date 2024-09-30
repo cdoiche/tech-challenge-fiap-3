@@ -47,13 +47,24 @@ namespace Fiap.Api.ConsultarContato.Controllers
 
             try
             {
-                Task<bool> exiteEmail = _contatoRepository.ContatoExistePorEmail(email, id);
-                exiteEmail.Wait();
+                bool existeEmail = false;
+                bool existeTelefone = false;
 
-                Task<bool> existeTelefone = _contatoRepository.ContatoExistePorTelefone(ddd, telefone);
-                existeTelefone.Wait();
+                if (!string.IsNullOrEmpty(email))
+                {
+                    Task<bool> taskExiteEmail = _contatoRepository.ContatoExistePorEmail(email, id);
+                    taskExiteEmail.Wait();
+                    existeEmail = taskExiteEmail.Result;
+                }
 
-                if (!exiteEmail.Result && !existeTelefone.Result)
+                if (!string.IsNullOrEmpty(ddd) && !string.IsNullOrEmpty(telefone))
+                {
+                    Task<bool> taskExisteTelefone = _contatoRepository.ContatoExistePorTelefone(ddd, telefone);
+                    taskExisteTelefone.Wait();
+                    existeTelefone = taskExisteTelefone.Result;
+                }
+
+                if (!existeEmail && !existeTelefone)
                 {
                     return Ok();
                 }
