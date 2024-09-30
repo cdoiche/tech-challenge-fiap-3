@@ -3,8 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fiap.Api.Atualizarcontato.DTO
 {
-    public class CriarContatoDTO
+    public class AtualizarContatoDTO
     {
+        public int Id { get; set; }
         public string Nome { get; set; }
         public string Ddd { get; set; }
         public string Telefone { get; set; }

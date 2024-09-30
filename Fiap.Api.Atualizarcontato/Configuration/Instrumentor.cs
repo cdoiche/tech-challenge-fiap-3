@@ -5,7 +5,7 @@ namespace Fiap.Api.Atualizarcontato.Configuration
 {
     public sealed class Instrumentor : IDisposable
     {
-        public const string ServiceName = "FiapApiService";
+        public const string ServiceName = "AtualizarContatoFiapApiService";
 
         public ActivitySource Tracer { get; }
         public Meter Recorder { get; }

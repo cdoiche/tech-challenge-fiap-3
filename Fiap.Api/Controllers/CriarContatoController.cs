@@ -1,11 +1,11 @@
-﻿using Fiap.Api.CriarContato.Configuration;
-using Fiap.Api.CriarContato.DTO;
+﻿using Fiap.Api.Atualizarcontato.Configuration;
+using Fiap.Api.Atualizarcontato.DTO;
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
-namespace Fiap.Api.CriarContato.Controllers
+namespace Fiap.Api.Atualizarcontato.Controllers
 {
     [ApiController]
     public class CriarContatoController : ControllerBase
@@ -44,7 +44,7 @@ namespace Fiap.Api.CriarContato.Controllers
 
                 var factory = new ConnectionFactory()
                 {
-                    HostName = "localhost",
+                    HostName = "rabbitmq",
                     UserName = "guest",
                     Password = "guest"
                 };
@@ -76,6 +76,7 @@ namespace Fiap.Api.CriarContato.Controllers
             }
             catch (Exception ex)
             {
+                System.Console.WriteLine(ex.ToString());
                 return StatusCode(500, "Falha interna no servidor. " + ex.Message);
             }
         }
