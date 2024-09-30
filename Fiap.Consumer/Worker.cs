@@ -1,175 +1,189 @@
 using Fiap.Core.Context;
 using Fiap.Core.DTO;
 using Fiap.Core.Entities;
-using Fiap.Core.Interfaces;
 using Fiap.Domain.Repositories;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Fiap.Consumer
 {
-    public class Worker : BackgroundService
+    public class Worker : BackgroundService, IDisposable
     {
         private readonly ILogger<Worker> _logger;
         private readonly IServiceProvider _serviceProvider;
-        
-        private FiapDataContext context;
+        private readonly IConnection _connection;
+        private readonly IModel _channel;
 
         public Worker(ILogger<Worker> logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
+
+            var factory = new ConnectionFactory()
+            {
+                HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
+                Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
+                UserName = "guest",
+                Password = "guest"
+            };
+
+            _connection = factory.CreateConnection();
+            _channel = _connection.CreateModel();
+            ConfigureRabbitMQConsumer();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var scope = _serviceProvider.CreateScope();
-                context = scope.ServiceProvider.GetRequiredService<FiapDataContext>();
-
-                var factory = new ConnectionFactory()
-                {
-                    HostName = "localhost",
-                    UserName = "guest",
-                    Password = "guest"
-                };
-
-                var connection = factory.CreateConnection();
-
-                VerificarCriarContato(connection);
-                VerificarAlterarContato(connection);
-                VerificarExcluirContato(connection);
-
                 await Task.Delay(1000, stoppingToken);
             }
         }
-        private void VerificarCriarContato(IConnection connection) 
+
+        private void ConfigureRabbitMQConsumer()
         {
-            using (var channel = connection.CreateModel())
+            ConsumeCriarContato();
+            ConsumeAlterarContato();
+            ConsumeExcluirContato();
+        }
+        private void ConsumeCriarContato() 
+        {
+            _channel.QueueDeclare(
+                queue: "criar_contato_queue",
+                durable: false,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+
+            var consumer = new EventingBasicConsumer(_channel);
+            consumer.Received += async (sender, eventArgs) =>
             {
-                channel.QueueDeclare(
-                    queue: "criar_contato_queue",
-                    durable: false,
-                    exclusive: false,
-                    autoDelete: false,
-                    arguments: null);
+                var message = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
+                var criarContatoDTO = JsonSerializer.Deserialize<CriarContatoDTO>(message);
+                await InserirContato(criarContatoDTO);
+            };
 
-                var consumer = new EventingBasicConsumer(channel);
-
-                consumer.Received += (sender, eventArgs) =>
-                {
-                    var body = eventArgs.Body.ToArray();
-                    var message = Encoding.UTF8.GetString(body);
-                    var criarContatoDTO = JsonSerializer.Deserialize<CriarContatoDTO>(message);
-
-                    Task t = InserirContato(criarContatoDTO);
-                    t.Wait();
-                };
-
-                channel.BasicConsume(queue: "criar_contato_queue", autoAck: true, consumer: consumer);
-            }
+            _channel.BasicConsume(queue: "criar_contato_queue", autoAck: true, consumer: consumer);
         }
 
-        private void VerificarAlterarContato(IConnection connection)
+        private void ConsumeAlterarContato()
         {
-            using (var channel = connection.CreateModel())
+            _channel.QueueDeclare(
+                queue: "alterar_contato_queue",
+                durable: false,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+
+            var consumer = new EventingBasicConsumer(_channel);
+            consumer.Received += async (sender, eventArgs) =>
             {
-                channel.QueueDeclare(
-                    queue: "alterar_contato_queue", // Corrigido para o nome da fila que você quer consumir
-                    durable: false,
-                    exclusive: false,
-                    autoDelete: false,
-                    arguments: null);
+                var message = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
+                var contatoDTO = JsonSerializer.Deserialize<AlterarContatoDTO>(message);
+                await AlterarContato(contatoDTO);
+            };
 
-                var consumer = new EventingBasicConsumer(channel);
-
-                consumer.Received += (sender, eventArgs) =>
-                {
-                    var body = eventArgs.Body.ToArray();
-                    var message = Encoding.UTF8.GetString(body);
-                    var alterarContatoDTO = JsonSerializer.Deserialize<AlterarContatoDTO>(message);
-
-                    Task t = AlterarContato(alterarContatoDTO);
-                    t.Wait();
-                };
-
-                channel.BasicConsume(queue: "alterar_contato_queue", autoAck: true, consumer: consumer);
-            }
+            _channel.BasicConsume(queue: "alterar_contato_queue", autoAck: true, consumer: consumer);
         }
 
-        private void VerificarExcluirContato(IConnection connection)
+        private void ConsumeExcluirContato()
         {
-            using (var channel = connection.CreateModel())
+            _channel.QueueDeclare(
+                queue: "excluir_contato_queue",
+                durable: false,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+
+            var consumer = new EventingBasicConsumer(_channel);
+            consumer.Received += async (sender, eventArgs) =>
             {
-                channel.QueueDeclare(
-                    queue: "excluir_contato_queue",
-                    durable: false,
-                    exclusive: false,
-                    autoDelete: false,
-                    arguments: null);
+                var message = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
+                var contatoDTO = JsonSerializer.Deserialize<ExcluirContatoDTO>(message);
+                await ExcluirContato(contatoDTO);
+            };
 
-                var consumer = new EventingBasicConsumer(channel);
-
-                consumer.Received += (sender, eventArgs) =>
-                {
-                    var body = eventArgs.Body.ToArray();
-                    var message = Encoding.UTF8.GetString(body);
-                    var atualizarContatoDTO = JsonSerializer.Deserialize<ExcluirContatoDTO>(message);
-
-                    Task t = ExcluirContato(atualizarContatoDTO);
-                    t.Wait();
-                };
-
-                channel.BasicConsume(queue: "excluir_contato_queue", autoAck: true, consumer: consumer);
-            }
+            _channel.BasicConsume(queue: "excluir_contato_queue", autoAck: true, consumer: consumer);
         }
 
         private async Task InserirContato(CriarContatoDTO criarContatoDTO) 
         {
+            if (criarContatoDTO == null)
+            {
+                _logger.LogWarning("Received null CriarContatoDTO.");
+                return;
+            }
+
             try
             {
-                ContatoRepository contatoRepository = new ContatoRepository(context);
-
-                Contato contato = contatoRepository.CriarContato(criarContatoDTO.Nome, criarContatoDTO.Ddd, criarContatoDTO.Telefone, criarContatoDTO.Email);
-                await contatoRepository.InserirContato(contato);
+                // Create a new scope for the context
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<FiapDataContext>();
+                    var contatoRepository = new ContatoRepository(context);
+                    var contato = contatoRepository.CriarContato(criarContatoDTO.Nome, criarContatoDTO.Ddd, criarContatoDTO.Telefone, criarContatoDTO.Email);
+                    await contatoRepository.InserirContato(contato);
+                }
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, "Error inserting contact: {ContatoDTO}", criarContatoDTO);
             }
         }
 
         private async Task AlterarContato(AlterarContatoDTO ContatoDTO)
         {
+            if (ContatoDTO == null)
+            {
+                _logger.LogWarning("Received null AlterarContatoDTO.");
+                return;
+            }
+
             try
             {
-                ContatoRepository contatoRepository = new ContatoRepository(context);
-
-                await contatoRepository.AtualizarContato(ContatoDTO);
+                // Create a new scope for the context
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<FiapDataContext>();
+                    var contatoRepository = new ContatoRepository(context);
+                    await contatoRepository.AtualizarContato(ContatoDTO);
+                }
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, "Error inserting contact: {ContatoDTO}", ContatoDTO);
             }
         }
 
         private async Task ExcluirContato(ExcluirContatoDTO ContatoDTO)
         {
+            if (ContatoDTO == null)
+            {
+                _logger.LogWarning("Received null ExcluirContatoDTO.");
+                return;
+            }
+
             try
             {
-                ContatoRepository contatoRepository = new ContatoRepository(context);
-                int id = ContatoDTO.Id;
-                bool contato = await contatoRepository.ExcluirContato(id);
-                await contatoRepository.ExcluirContato(id);
+                // Create a new scope for the context
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<FiapDataContext>();
+                    var contatoRepository = new ContatoRepository(context);
+                    await contatoRepository.ExcluirContato(ContatoDTO.Id);
+                }
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, "Error deleting contact: {ContatoDTO}", ContatoDTO);
             }
+        }
+        public override async void Dispose()
+        {
+            _channel.Close();
+            _connection.Close();
         }
     }
 }
