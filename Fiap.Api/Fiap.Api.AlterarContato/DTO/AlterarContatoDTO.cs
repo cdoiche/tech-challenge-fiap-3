@@ -2,27 +2,10 @@
 {
     public class AlterarContatoDTO
     {
-        public string Id { 
-            get
-            {
-                return Id;
-            }
-            set
-            {
-                if (string.IsNullOrEmpty(Id)) throw new Exception("Id inválido");
-            }
-        }
-        public string? Nome { get; set; }
-        public string? Ddd { get; set; }
-        public string? Telefone { get; set; }
-        public string Email
-        {
-            get => Email;
-            set
-            {
-                if (string.IsNullOrEmpty(Email)) throw new Exception("Email inválido");
-                if (!Email.Contains('@')) throw new Exception("Email inválido");
-            }
-        }
+        public string Id { get; set; } = string.Empty;
+        public string Nome { get; set; } = string.Empty;
+        public string Ddd { get; set; } = string.Empty;
+        public string Telefone { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
     }
 }

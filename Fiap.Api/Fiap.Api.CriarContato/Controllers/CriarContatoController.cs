@@ -13,11 +13,13 @@ namespace Fiap.Api.CriarContato.Controllers
     {
         private readonly Instrumentor _instrumentor;
         private readonly IContatoService _contatoService;
+        private readonly IModel _channel;
 
-        public CriarContatoController(Instrumentor instrumentor, IContatoService contatoService)
+        public CriarContatoController(Instrumentor instrumentor, IContatoService contatoService, IModel channel)
         {
             _instrumentor = instrumentor;
             _contatoService = contatoService;
+            _channel = channel;
         }
 
         [HttpPost("CriarContato")]
@@ -41,31 +43,10 @@ namespace Fiap.Api.CriarContato.Controllers
                     return BadRequest("O e-mail ou telefone informado já existe.");
                 }
 
-                var factory = new ConnectionFactory()
-                {
-                    HostName = "localhost",
-                    UserName = "guest",
-                    Password = "guest"
-                };
+                var message = JsonSerializer.Serialize(novoContatoDTO);
+                var body = Encoding.UTF8.GetBytes(message);
 
-                using (var connection = factory.CreateConnection())
-                {
-                    using (var channel = connection.CreateModel())
-                    {
-                        channel.QueueDeclare(
-                            queue: "criar_contato_queue",
-                            durable: false,
-                            exclusive: false,
-                            autoDelete: false,
-                            arguments: null);
-
-                        var message = JsonSerializer.Serialize(novoContatoDTO);
-
-                        var body = Encoding.UTF8.GetBytes(message);
-
-                        channel.BasicPublish(exchange: "", routingKey: "criar_contato_queue", basicProperties: null, body: body);
-                    }
-                }
+                _channel.BasicPublish(exchange: "", routingKey: "criar_contato_queue", basicProperties: null, body: body);
 
                 return Ok();
             }

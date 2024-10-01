@@ -13,11 +13,13 @@ namespace Fiap.Api.AlterarContato.Controllers
     {
         private readonly Instrumentor _instrumentor;
         private readonly IContatoService _contatoService;
+        private readonly IModel _channel;
 
-        public AlterarContatoController(Instrumentor instrumentor, IContatoService contatoService)
+        public AlterarContatoController(Instrumentor instrumentor, IContatoService contatoService, IModel channel)
         {
             _instrumentor = instrumentor;
             _contatoService = contatoService;
+            _channel = channel;
         }
 
         [HttpPut("AlterarContato")]
@@ -36,31 +38,10 @@ namespace Fiap.Api.AlterarContato.Controllers
                 return BadRequest("O e-mail ou telefone informado já está sendo usado por outro contato.");
             }
 
-            var factory = new ConnectionFactory()
-            {
-                HostName = "localhost",
-                UserName = "guest",
-                Password = "guest"
-            };
+            var message = JsonSerializer.Serialize(alterarContatoDTO);
+            var body = Encoding.UTF8.GetBytes(message);
 
-            using (var connection = factory.CreateConnection())
-            {
-                using (var channel = connection.CreateModel())
-                {
-                    channel.QueueDeclare(
-                        queue: "alterar_contato_queue",
-                        durable: false,
-                        exclusive: false,
-                        autoDelete: false,
-                        arguments: null);
-
-                    var message = JsonSerializer.Serialize(alterarContatoDTO);
-
-                    var body = Encoding.UTF8.GetBytes(message);
-
-                    channel.BasicPublish(exchange: "", routingKey: "alterar_contato_queue", basicProperties: null, body: body);
-                }
-            }
+            _channel.BasicPublish(exchange: "", routingKey: "alterar_contato_queue", basicProperties: null, body: body);
 
             return Ok();
         }

@@ -1,6 +1,7 @@
 ﻿using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using RabbitMQ.Client;
 
 namespace Fiap.Api.ExcluirContato.Configuration
 {
@@ -10,6 +11,30 @@ namespace Fiap.Api.ExcluirContato.Configuration
         {
             builder.Services.AddHealthChecks();
             builder.Services.AddSingleton<Instrumentor>();
+            builder.Services.AddSingleton<IConnectionFactory>(sp =>
+            {
+                return new ConnectionFactory()
+                {
+                    HostName = Environment.GetEnvironmentVariable("RABBIT_HOST") ?? "localhost",
+                    UserName = "guest",
+                    Password = "guest"
+                };
+            });
+            builder.Services.AddSingleton<IModel>(sp =>
+            {
+                var factory = sp.GetRequiredService<IConnectionFactory>();
+                var connection = factory.CreateConnection();
+                var channel = connection.CreateModel();
+
+                channel.QueueDeclare(
+                    queue: "alterar_contato_queue",
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+
+                return channel;
+            });
 
             Action<ResourceBuilder> appResourceBuilder =
                 resource => resource

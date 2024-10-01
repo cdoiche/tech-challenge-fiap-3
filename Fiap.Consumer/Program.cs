@@ -1,7 +1,5 @@
 using Fiap.Consumer;
 using Fiap.Core.Context;
-using Fiap.Core.Interfaces;
-using Fiap.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -13,8 +11,6 @@ var postgresUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
 var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
 var connectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresDb};Username={postgresUser};Password={postgresPassword}";
 
-
-// var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddHostedService<Worker>();
 
 builder.Services.AddDbContext<FiapDataContext>(options => options.UseNpgsql(connectionString));

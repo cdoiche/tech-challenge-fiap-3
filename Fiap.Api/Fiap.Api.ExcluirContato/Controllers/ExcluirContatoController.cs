@@ -1,4 +1,5 @@
 ﻿using Fiap.Api.ExcluirContato.Configuration;
+using Fiap.Api.ExcluirContato.DTO;
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Client;
 using System.Text;
@@ -10,10 +11,12 @@ namespace Fiap.Api.ExcluirContato.Controllers
     public class ExcluirContatoController : ControllerBase
     {
         private readonly Instrumentor _instrumentor;
+        private readonly IModel _channel;
 
-        public ExcluirContatoController(Instrumentor instrumentor)
+        public ExcluirContatoController(Instrumentor instrumentor, IModel channel)
         {
             _instrumentor = instrumentor;
+            _channel = channel;
         }
 
         [HttpDelete("ExcluirContato")]
@@ -21,51 +24,10 @@ namespace Fiap.Api.ExcluirContato.Controllers
         {
             try
             {
-                //try
-                //{
-                //    if (_contatoRepository.ContatoValido(contato))
-                //    {
-                //        await _contatoRepository.InserirContato(contato);
-                //        return Ok(contato);
-                //    }
-                //    else
-                //    {
-                //        string validacao = String.Join(System.Environment.NewLine, _contatoRepository.ValidarContato(contato));
-                //        return BadRequest(validacao);
-                //    }
+                var message = JsonSerializer.Serialize( new ExcluirContatoDTO() { Id = id });
+                var body = Encoding.UTF8.GetBytes(message);
 
-                //    return BadRequest("Não foi possível criar o contato.");
-                //}
-                //catch (Exception ex)
-                //{
-                //    return StatusCode(500, "Falha interna no servidor. " + ex.Message);
-                //}
-
-                var factory = new ConnectionFactory()
-                {
-                    HostName = "localhost",
-                    UserName = "guest",
-                    Password = "guest"
-                };
-
-                using (var connection = factory.CreateConnection())
-                {
-                    using (var channel = connection.CreateModel())
-                    {
-                        channel.QueueDeclare(
-                            queue: "excluir_contato_queue",
-                            durable: false,
-                            exclusive: false,
-                            autoDelete: false,
-                            arguments: null);
-
-                        var message = JsonSerializer.Serialize(ExcluirContato);
-
-                        var body = Encoding.UTF8.GetBytes(message);
-
-                        channel.BasicPublish(exchange: "", routingKey: "excluir_contato_queue", basicProperties: null, body: body);
-                    }
-                }
+                _channel.BasicPublish(exchange: "", routingKey: "excluir_contato_queue", basicProperties: null, body: body);
 
                 return Ok();
             }
@@ -78,76 +40,5 @@ namespace Fiap.Api.ExcluirContato.Controllers
                 return StatusCode(500, "Falha interna no servidor. " + ex.Message);
             }
         }
-
-        //[HttpPut("AtualizarContato")]
-        //public async Task<IActionResult> AtualizarContato([FromBody] AtualizarContatoDTO atualizarContatoDTO)
-        //{
-        //    try
-        //    {
-        //        if (atualizarContatoDTO != null)
-        //        {
-        //            Contato contato = await _contatoRepository.AtualizarContato(atualizarContatoDTO);
-
-        //            if (contato != null)
-        //            {
-        //                return Ok(contato);
-        //            }
-        //        }
-
-        //        return BadRequest("Não foi possível atualizar o contato.");
-        //    }
-        //    catch (InvalidOperationException ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Falha interna no servidor. " + ex.Message);
-        //    }
-        //}
-
-        //[HttpDelete("ExcluirContato")]
-        //public async Task<IActionResult> ExcluirContato([FromQuery] int id)
-        //{
-        //    try
-        //    {
-        //        if (id > 0)
-        //        {
-        //            bool excluido = await _contatoRepository.ExcluirContato(id);
-
-        //            if (excluido)
-        //            {
-        //                return Ok();
-        //            }
-        //        }
-
-        //        return BadRequest("Contato não localizado.");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Falha interna no servidor." + ex.Message);
-        //    }
-        //}
-
-        //[HttpGet("ConsultarContato")]
-        //public IActionResult ConsultarContato(string ddd)
-        //{
-        //    _instrumentor.IncomingRequestCounter.Add(1,
-        //   new KeyValuePair<string, object>("operation", "ConsultarContato"),
-        //   new KeyValuePair<string, object>("controller", nameof(CriarContatoController)));
-
-        //    try
-        //    {
-        //        Console.WriteLine("Trying to ConsultarContadosPorDDD");
-        //        IEnumerable<Contato> list = _contatoRepository.ConsultarContatosPorDDD(ddd);
-
-        //        return Ok(list);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Falha interna no servidor. " + ex.Message);
-        //    }
-        //}
-
     }
 }

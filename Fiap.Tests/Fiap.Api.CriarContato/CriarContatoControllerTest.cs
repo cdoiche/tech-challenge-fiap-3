@@ -74,11 +74,7 @@ namespace Fiap.Tests.Fiap.Api.CriarContato
             _mockConnectionFactory.Setup(f => f.CreateConnection()).Returns(_mockConnection.Object);
             _mockConnection.Setup(c => c.CreateModel()).Returns(_mockChannel.Object);
 
-            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object)
-            {
-                // Injecting mock connection factory
-                ConnectionFactory = _mockConnectionFactory.Object
-            };
+            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object);
 
             // Act
             var result = await controller.CriarContatoAsync(dto);
@@ -141,11 +137,7 @@ namespace Fiap.Tests.Fiap.Api.CriarContato
             // Simulate exception when publishing to RabbitMQ
             _mockConnection.Setup(c => c.CreateModel()).Throws(new Exception("RabbitMQ error"));
 
-            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object)
-            {
-                // Injecting mock connection factory
-                ConnectionFactory = _mockConnectionFactory.Object
-            };
+            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object);
 
             // Act
             var result = await controller.CriarContatoAsync(dto);

@@ -12,6 +12,7 @@ services:
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
       - ASPNETCORE_URLS=http://+:5131
       - ConsultarServiceUrl=http://fiap.api.consulta:5133
+      - RABBIT_HOST=rabbitmq
     ports:
       - 5131:5131
     networks:
@@ -28,6 +29,7 @@ services:
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
       - ASPNETCORE_URLS=http://+:5132
       - ConsultarServiceUrl=http://fiap.api.consulta:5133
+      - RABBIT_HOST=rabbitmq
     ports:
       - 5132:5132
     networks:
@@ -64,6 +66,7 @@ services:
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
       - ASPNETCORE_URLS=http://+:5134
       - ConsultarServiceUrl=http://fiap.api.consulta:5133
+      - RABBIT_HOST=rabbitmq
     ports:
       - 5134:5134
     networks:
