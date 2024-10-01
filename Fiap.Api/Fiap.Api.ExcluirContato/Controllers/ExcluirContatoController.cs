@@ -1,12 +1,10 @@
-﻿using Fiap.Api.CriarContato.Configuration;
-using Fiap.Api.CriarContato.DTO;
-using Microsoft.AspNetCore.Connections;
+﻿using Fiap.Api.ExcluirContato.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
-namespace Fiap.Api.CriarContato.Controllers
+namespace Fiap.Api.ExcluirContato.Controllers
 {
     [ApiController]
     public class ExcluirContatoController : ControllerBase

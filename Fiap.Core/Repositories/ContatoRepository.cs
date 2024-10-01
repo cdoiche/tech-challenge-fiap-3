@@ -27,7 +27,7 @@ namespace Fiap.Domain.Repositories
             return true;
         }
 
-        public async Task<Contato> AtualizarContato(AlterarContatoDTO contato)
+        public async Task<Contato?> AtualizarContato(AlterarContatoDTO contato)
         {
             // Obter o contato existente pelo ID
             var contatoExistente = await _context.Contatos.FindAsync(contato.Id);

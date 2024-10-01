@@ -5,12 +5,13 @@
 services:
   fiap.api.create:
     build:
-      context: ./Fiap.Api
+      context: ./Fiap.Api/Fiap.Api.CriarContato
       dockerfile: Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
       - ASPNETCORE_URLS=http://+:5131
+      - ConsultarServiceUrl=http://fiap.api.consulta:5133
     ports:
       - 5131:5131
     networks:
@@ -20,14 +21,51 @@ services:
   
   fiap.api.update:
     build:
-      context: ./Fiap.Api.Atualizarcontato
+      context: ./Fiap.Api/Fiap.Api.AlterarContato
       dockerfile: Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
       - ASPNETCORE_URLS=http://+:5132
+      - ConsultarServiceUrl=http://fiap.api.consulta:5133
     ports:
       - 5132:5132
+    networks:
+      otel:
+    profiles:
+      - services-all
+
+  fiap.api.consulta:
+    build:
+      context: .
+      dockerfile: ./Fiap.Api/Fiap.Api.ConsultarContato/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - ASPNETCORE_URLS=http://+:5133
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=desafio_1
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123!asd
+    ports:
+      - 5133:5133
+    networks:
+      otel:
+    profiles:
+      - services-all
+
+  fiap.api.delete:
+    build:
+      context: ./Fiap.Api/Fiap.Api.ExcluirContato
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - ASPNETCORE_URLS=http://+:5134
+      - ConsultarServiceUrl=http://fiap.api.consulta:5133
+    ports:
+      - 5134:5134
     networks:
       otel:
     profiles:

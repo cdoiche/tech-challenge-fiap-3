@@ -23,7 +23,13 @@ builder.Services.AddCors(options =>
                    .AllowAnyMethod());
 });
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var postgresHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
+var postgresPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
+var postgresDb = Environment.GetEnvironmentVariable("POSTGRES_DB");
+var postgresUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
+var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+var connectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresDb};Username={postgresUser};Password={postgresPassword}";
 builder.Services.AddDbContext<FiapDataContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<IContatoRepository, ContatoRepository>();
 

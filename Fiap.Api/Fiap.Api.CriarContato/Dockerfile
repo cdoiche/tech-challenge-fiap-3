@@ -3,17 +3,17 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 EXPOSE 5131
 
-ENV ASPNETCORE_URLS=http://+:5134
+ENV ASPNETCORE_URLS=http://+:5131
 
 # Copy the project file and restore dependencies
-COPY ["./Fiap.Api.ExcluirContato.csproj", "./"]
-RUN dotnet restore "Fiap.Api.ExcluirContato.csproj"
+COPY ["./Fiap.Api.CriarContato.csproj", "./"]
+RUN dotnet restore "Fiap.Api.CriarContato.csproj"
 
 # Copy the remaining source code
 COPY . .
 
 # Build and publish the application
-RUN dotnet build "Fiap.Api.ExcluirContato.csproj" -c Development -o /app/build
+RUN dotnet build "Fiap.Api.CriarContato.csproj" -c Development -o /app/build
 
 
 # Runtime stage
@@ -29,4 +29,4 @@ RUN dotnet tool install --global dotnet-ef
 # Copy published application from build stage (if using multi-stage build, skip this)
 COPY --from=build /app/build .
 
-ENTRYPOINT ["dotnet", "Fiap.Api.ExcluirContato.dll"]
+ENTRYPOINT ["dotnet", "Fiap.Api.CriarContato.dll"]

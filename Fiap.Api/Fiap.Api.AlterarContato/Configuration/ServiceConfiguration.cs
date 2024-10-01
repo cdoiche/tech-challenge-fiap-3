@@ -1,8 +1,9 @@
-﻿using OpenTelemetry.Metrics;
+﻿using Fiap.Api.AlterarContato.Services;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace Fiap.Api.ExcluirContato.Configuration
+namespace Fiap.Api.AlterarContato.Configuration
 {
     public static class ServiceConfiguration
     {
@@ -10,13 +11,14 @@ namespace Fiap.Api.ExcluirContato.Configuration
         {
             builder.Services.AddHealthChecks();
             builder.Services.AddSingleton<Instrumentor>();
+            builder.Services.AddHttpClient<IContatoService, ContatoService>();
 
             Action<ResourceBuilder> appResourceBuilder =
                 resource => resource
                     .AddTelemetrySdk()
-                    .AddService(builder.Configuration.GetValue<string>("Otlp:ServiceName"));
+                    .AddService(builder.Configuration.GetValue<string>("Otlp:ServiceName") ?? "http://localhost:4317");
 
-            object value = builder.Services.AddOpenTelemetry()
+            builder.Services.AddOpenTelemetry()
                 .ConfigureResource(appResourceBuilder)
                 .WithTracing(tracingBuilder => tracingBuilder
                     .AddSource("FiapApiTracing")
@@ -39,14 +41,14 @@ namespace Fiap.Api.ExcluirContato.Configuration
                             return !ignore.Any(s => req.RequestUri!.ToString().Contains(s));
                         };
                     })
-                    .AddOtlpExporter(otlpOptions => otlpOptions.Endpoint = new Uri(builder.Configuration.GetValue<string>("Otlp:Endpoint")))
+                    .AddOtlpExporter(otlpOptions => otlpOptions.Endpoint = new Uri(builder.Configuration.GetValue<string>("Otlp:Endpoint") ?? "http://localhost:4317"))
                 )
                 .WithMetrics(metricsProviderBuilder =>
                     metricsProviderBuilder
                         .AddRuntimeInstrumentation()
                         .AddAspNetCoreInstrumentation()
                         .AddHttpClientInstrumentation()
-                        .AddOtlpExporter(otlpOptions => otlpOptions.Endpoint = new Uri(builder.Configuration.GetValue<string>("Otlp:Endpoint"))));
+                        .AddOtlpExporter(otlpOptions => otlpOptions.Endpoint = new Uri(builder.Configuration.GetValue<string>("Otlp:Endpoint") ?? "http://localhost:4317")));
         }
 
     }

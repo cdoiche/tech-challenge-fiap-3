@@ -1,6 +1,5 @@
 using Fiap.Core.Context;
 using Fiap.Core.DTO;
-using Fiap.Core.Entities;
 using Fiap.Domain.Repositories;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;

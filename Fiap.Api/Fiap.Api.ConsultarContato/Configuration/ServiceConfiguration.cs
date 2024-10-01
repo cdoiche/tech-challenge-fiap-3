@@ -10,6 +10,7 @@ namespace Fiap.Api.ConsultarContato.Configuration
         {
             builder.Services.AddHealthChecks();
             builder.Services.AddSingleton<Instrumentor>();
+            
 
             Action<ResourceBuilder> appResourceBuilder =
                 resource => resource

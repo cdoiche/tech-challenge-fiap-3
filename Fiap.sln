@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fiap.Core", "Fiap.Core\Fiap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fiap.Consumer", "Fiap.Consumer\Fiap.Consumer.csproj", "{15C190A8-4469-4885-A03E-A6F9AF150AB1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fiap.Api.AlterarContato", "Fiap.Api\AlterarContato\Fiap.Api.AlterarContato.csproj", "{CDF77CB6-A3F4-40B1-A299-D7869352724A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fiap.Api.AlterarContato", "Fiap.Api\Fiap.Api.AlterarContato\Fiap.Api.AlterarContato.csproj", "{CDF77CB6-A3F4-40B1-A299-D7869352724A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fiap.Api.ExcluirContato", "Fiap.Api\Fiap.Api.ExcluirContato\Fiap.Api.ExcluirContato.csproj", "{66DBA545-E8CC-46C8-8B2F-81720A5DA0F0}"
 EndProject

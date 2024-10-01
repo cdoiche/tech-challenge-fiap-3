@@ -1,6 +1,0 @@
-@Fiap.Api.Atualizarcontato_HostAddress = http://localhost:5093
-
-GET {{Fiap.Api.Atualizarcontato_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

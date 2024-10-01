@@ -1,8 +1,9 @@
-﻿using OpenTelemetry.Metrics;
+﻿using Fiap.Api.CriarContato.Services;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace Fiap.Api.Atualizarcontato.Configuration
+namespace Fiap.Api.CriarContato.Configuration
 {
     public static class ServiceConfiguration
     {
@@ -10,6 +11,7 @@ namespace Fiap.Api.Atualizarcontato.Configuration
         {
             builder.Services.AddHealthChecks();
             builder.Services.AddSingleton<Instrumentor>();
+            builder.Services.AddHttpClient<IContatoService, ContatoService>();
 
             Action<ResourceBuilder> appResourceBuilder =
                 resource => resource

@@ -1,13 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Fiap.Api.Atualizarcontato.DTO
+﻿namespace Fiap.Api.CriarContato.DTO
 {
     public class CriarContatoDTO
     {
-        public string Nome { get; set; }
-        public string Ddd { get; set; }
-        public string Telefone { get; set; }
-        public string Email { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Ddd { get; set; } = string.Empty;
+        public string Telefone { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
     }
 }

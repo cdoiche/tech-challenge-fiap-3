@@ -1,14 +1,5 @@
-﻿using Fiap.Api.Controllers;
-using Fiap.Api.Entities;
-using Fiap.Api.Interfaces;
-using Fiap.Api.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Fiap.Tests
 {

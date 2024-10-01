@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Fiap.Api.CriarContato.Configuration
+namespace Fiap.Api.AlterarContato.Configuration
 {
     public class DiagnosticsConfig
     {

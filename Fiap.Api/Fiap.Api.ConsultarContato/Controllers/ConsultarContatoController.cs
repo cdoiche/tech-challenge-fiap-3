@@ -2,8 +2,6 @@
 using Fiap.Core.Entities;
 using Fiap.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 
 namespace Fiap.Api.ConsultarContato.Controllers
 {

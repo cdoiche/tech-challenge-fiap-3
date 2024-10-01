@@ -1,8 +1,8 @@
 ﻿using Fiap.Api.CriarContato.Configuration;
 using Fiap.Api.CriarContato.DTO;
+using Fiap.Api.CriarContato.Services;
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Client;
-using System.IO;
 using System.Text;
 using System.Text.Json;
 
@@ -12,14 +12,16 @@ namespace Fiap.Api.CriarContato.Controllers
     public class CriarContatoController : ControllerBase
     {
         private readonly Instrumentor _instrumentor;
+        private readonly IContatoService _contatoService;
 
-        public CriarContatoController(Instrumentor instrumentor)
+        public CriarContatoController(Instrumentor instrumentor, IContatoService contatoService)
         {
             _instrumentor = instrumentor;
+            _contatoService = contatoService;
         }
 
         [HttpPost("CriarContato")]
-        public IActionResult CriarContato([FromBody] CriarContatoDTO novoContatoDTO)
+        public async Task<IActionResult> CriarContatoAsync([FromBody] CriarContatoDTO novoContatoDTO)
         {
             try
             {
@@ -32,11 +34,9 @@ namespace Fiap.Api.CriarContato.Controllers
                     return BadRequest("Todos os campos são de preenchimento obrigatório.");
                 }
 
-                HttpClient client = new HttpClient();
-                Task<HttpResponseMessage> response = client.GetAsync("http://localhost:5189/ValidarContato?ddd=" + novoContatoDTO.Ddd+"&telefone="+novoContatoDTO.Telefone+"&email="+novoContatoDTO.Email);
-                response.Wait();
+                var response = await _contatoService.ValidarContatoAsync(novoContatoDTO.Ddd, novoContatoDTO.Telefone, novoContatoDTO.Email);
 
-                if (!response.Result.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
                     return BadRequest("O e-mail ou telefone informado já existe.");
                 }
