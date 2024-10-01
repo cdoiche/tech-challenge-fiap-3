@@ -26,12 +26,19 @@ namespace Fiap.Api.AlterarContato.Controllers
         public async Task<IActionResult> AlterarContatoAsync([FromBody] AlterarContatoDTO alterarContatoDTO)
         {
             // Verificar se os campos obrigatórios estão preenchidos
-            if (string.IsNullOrEmpty(alterarContatoDTO.Id) || string.IsNullOrEmpty(alterarContatoDTO.Email))
+            if (!alterarContatoDTO.Id.HasValue || string.IsNullOrEmpty(alterarContatoDTO.Email))
             {
                 return BadRequest("Os campos Id e E-mail são de preenchimento obrigatório.");
             }
 
-            var response = await _contatoService.ValidarContatoAsync(alterarContatoDTO.Ddd, alterarContatoDTO.Telefone, alterarContatoDTO.Email);
+            var responseContatoId = await _contatoService.ValidarContatoIdAsync(alterarContatoDTO.Id.Value);
+
+            if (!responseContatoId.IsSuccessStatusCode)
+            {
+                return BadRequest("O id do contato informado não foi localizado na base de dados.");
+            }
+
+            var response = await _contatoService.ValidarContatoAsync(alterarContatoDTO.Id.Value, alterarContatoDTO.Ddd, alterarContatoDTO.Telefone, alterarContatoDTO.Email);
 
             if (!response.IsSuccessStatusCode)
             {

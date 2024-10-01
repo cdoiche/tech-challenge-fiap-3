@@ -112,6 +112,11 @@ namespace Fiap.Domain.Repositories
             return _context.Contatos.Any(c => c.Nome == nome && c.Ddd == ddd && c.Telefone == telefone && c.Email == email);
         }
 
+        public async Task<bool> ContatoExistePorId(int id)
+        {
+            return await _context.Contatos.AnyAsync(c => c.Id == id);
+        }
+
         public async Task<bool> ContatoExistePorEmail(string email, int id)
         {
             // Verificar se existe algum contato com o mesmo e-mail no banco de dados

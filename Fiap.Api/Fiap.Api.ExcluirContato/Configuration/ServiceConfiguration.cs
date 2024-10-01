@@ -1,4 +1,5 @@
-﻿using OpenTelemetry.Metrics;
+﻿using Fiap.Api.ExcluirContato.Services;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using RabbitMQ.Client;
@@ -11,6 +12,7 @@ namespace Fiap.Api.ExcluirContato.Configuration
         {
             builder.Services.AddHealthChecks();
             builder.Services.AddSingleton<Instrumentor>();
+            builder.Services.AddHttpClient<IContatoService, ContatoService>();
             builder.Services.AddSingleton<IConnectionFactory>(sp =>
             {
                 return new ConnectionFactory()

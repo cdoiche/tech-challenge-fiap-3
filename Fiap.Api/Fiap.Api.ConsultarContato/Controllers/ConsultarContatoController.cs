@@ -2,6 +2,7 @@
 using Fiap.Core.Entities;
 using Fiap.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fiap.Api.ConsultarContato.Controllers
 {
@@ -69,6 +70,33 @@ namespace Fiap.Api.ConsultarContato.Controllers
                 else
                 {
                     return BadRequest("O e-mail ou telefone informado já existe.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Falha interna no servidor. " + ex.Message);
+            }
+        }
+
+        [HttpGet("ValidarContatoId")]
+        public IActionResult ValidarContatoId(int id)
+        {
+            _instrumentor.IncomingRequestCounter.Add(1,
+           new KeyValuePair<string, object>("operation", "ValidarContatoId"),
+           new KeyValuePair<string, object>("controller", nameof(ConsultarContatoController)));
+
+            try
+            {
+                Task<bool> contatoExistente = _contatoRepository.ContatoExistePorId(id);
+                bool exiteId = contatoExistente.Result;
+
+                if (exiteId)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest("O id do contato informado não foi localizado na base de dados.");
                 }
             }
             catch (Exception ex)

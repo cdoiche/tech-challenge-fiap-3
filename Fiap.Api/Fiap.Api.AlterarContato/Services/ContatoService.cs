@@ -14,9 +14,15 @@ namespace Fiap.Api.AlterarContato.Services {
                                 ?? throw new InvalidOperationException("Environment variable 'ConsultarServiceUrl' is not set.");
         }
 
-        public async Task<HttpResponseMessage> ValidarContatoAsync(string ddd, string telefone, string email)
+        public async Task<HttpResponseMessage> ValidarContatoAsync(int id, string ddd, string telefone, string email)
         {
-            var requestUri = $"{_consultarServiceUrl}/ValidarContato?ddd={ddd}&telefone={telefone}&email={email}";
+            var requestUri = $"{_consultarServiceUrl}/ValidarContato?id={id}&ddd={ddd}&telefone={telefone}&email={email}";
+            return await _httpClient.GetAsync(requestUri);
+        }
+
+        public async Task<HttpResponseMessage> ValidarContatoIdAsync(int id)
+        {
+            var requestUri = $"{_consultarServiceUrl}/ValidarContatoId?id={id}";
             return await _httpClient.GetAsync(requestUri);
         }
     }

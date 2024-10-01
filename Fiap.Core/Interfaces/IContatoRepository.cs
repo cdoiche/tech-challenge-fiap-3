@@ -10,6 +10,7 @@ namespace Fiap.Core.Interfaces
         Task<Contato?> AtualizarContato(AlterarContatoDTO contato);
         Task<bool> ExcluirContato(int id);
         IEnumerable<Contato> ConsultarContatosPorDDD(string ddd);
+        Task<bool> ContatoExistePorId(int id);
         Task<bool> ContatoExistePorEmail(string email, int id);
         Task<bool> ContatoExistePorTelefone(string ddd, string telefone);
         bool ContatoExiste(string nome, string ddd, string telefone, string email);

@@ -2,6 +2,7 @@
 {
     public interface IContatoService
     {
-        Task<HttpResponseMessage> ValidarContatoAsync(string ddd, string telefone, string email);
+        Task<HttpResponseMessage> ValidarContatoAsync(int id, string ddd, string telefone, string email);
+        Task<HttpResponseMessage> ValidarContatoIdAsync(int id);
     }
 }
