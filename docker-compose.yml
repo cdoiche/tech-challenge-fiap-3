@@ -3,18 +3,95 @@
 # docker compose -f docker-compose.yml --profile services-all --profile otel-all --profile zabbix-all down
 
 services:
-  fiap.api:
+  fiap.api.create:
     build:
-      context: .
+      context: ./Fiap.Api/Fiap.Api.CriarContato
       dockerfile: Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
       - ASPNETCORE_URLS=http://+:5131
+      - ConsultarServiceUrl=http://fiap.api.consulta:5133
+      - RABBIT_HOST=rabbitmq
     ports:
       - 5131:5131
     networks:
       otel:
+    profiles:
+      - services-all
+  
+  fiap.api.update:
+    build:
+      context: ./Fiap.Api/Fiap.Api.AlterarContato
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - ASPNETCORE_URLS=http://+:5132
+      - ConsultarServiceUrl=http://fiap.api.consulta:5133
+      - RABBIT_HOST=rabbitmq
+    ports:
+      - 5132:5132
+    networks:
+      otel:
+    profiles:
+      - services-all
+
+  fiap.api.consulta:
+    build:
+      context: .
+      dockerfile: ./Fiap.Api/Fiap.Api.ConsultarContato/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - ASPNETCORE_URLS=http://+:5133
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=desafio_1
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123!asd
+    ports:
+      - 5133:5133
+    networks:
+      otel:
+    profiles:
+      - services-all
+
+  fiap.api.delete:
+    build:
+      context: ./Fiap.Api/Fiap.Api.ExcluirContato
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - ASPNETCORE_URLS=http://+:5134
+      - ConsultarServiceUrl=http://fiap.api.consulta:5133
+      - RABBIT_HOST=rabbitmq
+    ports:
+      - 5134:5134
+    networks:
+      otel:
+    profiles:
+      - services-all
+
+  worker.consumer:
+    build:
+      context: .
+      dockerfile: ./Fiap.Consumer/Dockerfile
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=desafio_1
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123!asd
+    networks:
+      - otel
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     profiles:
       - services-all
   
@@ -38,6 +115,25 @@ services:
       retries: 5
     profiles:
       - services-all
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"  # RabbitMQ main port
+      - "15672:15672" # RabbitMQ Management UI
+    networks:
+      - otel
+    profiles:
+      - services-all
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmqctl status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   blackbox:
     image: prom/blackbox-exporter:v0.25.0

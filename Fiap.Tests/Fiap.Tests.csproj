@@ -19,7 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fiap.Api\Fiap.Api.csproj" />
+    <ProjectReference Include="..\Fiap.Api\Fiap.Api.AlterarContato\Fiap.Api.AlterarContato.csproj" />
+    <ProjectReference Include="..\Fiap.Api\Fiap.Api.ConsultarContato\Fiap.Api.ConsultarContato.csproj" />
+    <ProjectReference Include="..\Fiap.Api\Fiap.Api.CriarContato.csproj" />
+    <ProjectReference Include="..\Fiap.Api\Fiap.Api.CriarContato\Fiap.Api.CriarContato.csproj" />
+    <ProjectReference Include="..\Fiap.Api\Fiap.Api.ExcluirContato\Fiap.Api.ExcluirContato.csproj" />
+    <ProjectReference Include="..\Fiap.Consumer\Fiap.Consumer.csproj" />
+    <ProjectReference Include="..\Fiap.Core\Fiap.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
