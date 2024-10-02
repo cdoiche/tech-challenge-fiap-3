@@ -26,11 +26,11 @@ namespace Fiap.Tests.Fiap.Api.AlterarContato
         public void AlterarContato_MissingFields_ReturnsBadRequest()
         {
             // Arrange
-            var controller = new AlterarContatoController(_mockInstrumentor.Object, _mockContatoService.Object);
+            var controller = new AlterarContatoController(_mockInstrumentor.Object, _mockContatoService.Object, _mockChannel.Object);
 
             var dto = new AlterarContatoDTO
             {
-                Id = "",
+                Id = null,
                 Email = ""
             };
 
@@ -48,7 +48,7 @@ namespace Fiap.Tests.Fiap.Api.AlterarContato
             // Arrange
             var dto = new AlterarContatoDTO
             {
-                Id = "123",
+                Id = 123,
                 Nome = "Teste",
                 Email = "test@example.com",
                 Ddd = "11",
@@ -56,10 +56,10 @@ namespace Fiap.Tests.Fiap.Api.AlterarContato
             };
 
             _mockContatoService
-                .Setup(service => service.ValidarContatoAsync(dto.Ddd, dto.Telefone, dto.Email))
+                .Setup(service => service.ValidarContatoAsync(dto.Id.GetValueOrDefault(), dto.Ddd, dto.Telefone, dto.Email))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
-            var controller = new AlterarContatoController(_mockInstrumentor.Object, _mockContatoService.Object);
+            var controller = new AlterarContatoController(_mockInstrumentor.Object, _mockContatoService.Object, _mockChannel.Object);
 
             // Act
             var result = await controller.AlterarContatoAsync(dto);
@@ -86,10 +86,10 @@ namespace Fiap.Tests.Fiap.Api.AlterarContato
             };
 
             _mockContatoService
-                .Setup(service => service.ValidarContatoAsync(dto.Ddd, dto.Telefone, dto.Email))
+                .Setup(service => service.ValidarContatoAsync(dto.Id.GetValueOrDefault(), dto.Ddd, dto.Telefone, dto.Email))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
 
-            var controller = new AlterarContatoController(_mockInstrumentor.Object, _mockContatoService.Object);
+            var controller = new AlterarContatoController(_mockInstrumentor.Object, _mockContatoService.Object, _mockChannel.Object);
 
             // Act
             var result = await controller.AlterarContatoAsync(dto);
