@@ -35,7 +35,7 @@ namespace Fiap.Tests.Fiap.Api.CriarContato
         public async Task CriarContato_MissingFields_ReturnsBadRequest()
         {
             // Arrange
-            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object);
+            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object, _mockChannel.Object);
 
             var dto = new CriarContatoDTO
             {
@@ -74,7 +74,7 @@ namespace Fiap.Tests.Fiap.Api.CriarContato
             _mockConnectionFactory.Setup(f => f.CreateConnection()).Returns(_mockConnection.Object);
             _mockConnection.Setup(c => c.CreateModel()).Returns(_mockChannel.Object);
 
-            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object);
+            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object, _mockChannel.Object);
 
             // Act
             var result = await controller.CriarContatoAsync(dto);
@@ -107,7 +107,7 @@ namespace Fiap.Tests.Fiap.Api.CriarContato
                 .Setup(service => service.ValidarContatoAsync(dto.Ddd, dto.Telefone, dto.Email))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest)); // Simulating failure
 
-            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object);
+            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object, _mockChannel.Object);
 
             // Act
             var result = await controller.CriarContatoAsync(dto);
@@ -137,7 +137,7 @@ namespace Fiap.Tests.Fiap.Api.CriarContato
             // Simulate exception when publishing to RabbitMQ
             _mockConnection.Setup(c => c.CreateModel()).Throws(new Exception("RabbitMQ error"));
 
-            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object);
+            var controller = new CriarContatoController(_mockInstrumentor.Object, _mockContatoService.Object, _mockChannel.Object);
 
             // Act
             var result = await controller.CriarContatoAsync(dto);

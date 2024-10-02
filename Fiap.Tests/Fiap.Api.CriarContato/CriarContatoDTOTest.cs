@@ -11,7 +11,7 @@ namespace Fiap.Tests.Fiap.Api.CriarContato
             var dto = new AlterarContatoDTO();
 
             // Act & Assert
-            var exception = Assert.Throws<Exception>(() => dto.Id = "");
+            var exception = Assert.Throws<Exception>(() => dto.Id = null);
             Assert.Equal("Id inválido", exception.Message);
         }
 
@@ -22,10 +22,10 @@ namespace Fiap.Tests.Fiap.Api.CriarContato
             var dto = new AlterarContatoDTO();
 
             // Act
-            dto.Id = "123";
+            dto.Id = 123;
 
             // Assert
-            Assert.Equal("123", dto.Id);
+            Assert.Equal(123, dto.Id);
         }
 
         [Fact]
